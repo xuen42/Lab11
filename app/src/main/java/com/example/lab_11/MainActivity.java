@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                 try{
                     dbrw.execSQL("INSERT INTO myTable(book,price) values(?,?)",
                             new Object[]{ed_book.getText().toString(),ed_price.getText().toString()});
-                    Toast.makeText((MainActivity.this,"成功書名"+ed_book.getText().toString()+"價格"+ed_price.getText().toString(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,"成功書名"+ed_book.getText().toString()+"價格"+ed_price.getText().toString(),Toast.LENGTH_SHORT).show();
                     ed_book.setText("");
                     ed_price.setText("");
 
@@ -71,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
                 try{
                     dbrw.execSQL("UPDATE myTable SET price ="
                             +ed_price.getText().toString()
-                            + "WHERE book LIKE"
-                            +ed_book.getText().toString()+" ");
+                            + " WHERE book LIKE '"
+                            +ed_book.getText().toString()+"'");
                     Toast.makeText(MainActivity.this,"更新書名"+ed_book.getText().toString()+"價格"+ed_price.getText().toString(),Toast.LENGTH_SHORT).show();
                     ed_book.setText("");
                     ed_price.setText("");
@@ -89,9 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,"書名勿留空",Toast.LENGTH_SHORT).show();
             else{
                 try{
-                    dbrw.execSQL("DELETE FROM myTable WHERE book LIKE "
-                            +ed_price.getText().toString()
-                            +" ' ");
+                    dbrw.execSQL("DELETE FROM myTable WHERE book LIKE '" +ed_book.getText().toString() +"'");
                     Toast.makeText(MainActivity.this,"刪除書名"+ed_book.getText().toString(),Toast.LENGTH_SHORT).show();
                     ed_book.setText("");
                     ed_price.setText("");
@@ -103,24 +101,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-       ** btn_query.setOnClickListener(view -> {
+       btn_query.setOnClickListener(view -> {
             Cursor c;
-            if(ed_book.length()<1 )
-                Toast.makeText(MainActivity.this,"書名勿留空",Toast.LENGTH_SHORT).show();
-            else{
-                try{
-                    dbrw.execSQL("DELETE FROM myTable WHERE book LIKE "
-                            +ed_price.getText().toString()
-                            +" ' ");
-                    Toast.makeText(MainActivity.this,"刪除書名"+ed_book.getText().toString(),Toast.LENGTH_SHORT).show();
-                    ed_book.setText("");
-                    ed_price.setText("");
+            if(ed_book.length()<1)
+                c = dbrw.rawQuery("SELECT * FROM mytable",null);
+            else
+                c= dbrw.rawQuery("SELECT * FROM myTable WHERE book LIKE '" + ed_book.getText().toString()+"'",null);
 
-                }catch(Exception e){
-                    e.printStackTrace();
-                    Toast.makeText(MainActivity.this,"刪除失敗"+e.getMessage(),Toast.LENGTH_SHORT).show();
-                }
+            c.moveToFirst();
+            items.clear();
+            Toast.makeText(MainActivity.this,"共有"+c.getCount()+"筆",Toast.LENGTH_SHORT).show();
+            for(int i=0;i<c.getCount();i++){
+                items.add("書籍"+c.getString(0)+"\t\t\t\t價格"+c.getString(1));
+                c.moveToNext();
             }
+            adapter.notifyDataSetChanged();
+            c.close();
         });
     }
 }
